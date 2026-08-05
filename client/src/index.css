@@ -1,0 +1,78 @@
+@font-face {
+  font-family: 'Overpass';
+  src: url('/fonts/Overpass-VariableFont_wght.ttf') format('truetype-variations');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Overpass';
+  src: url('/fonts/Overpass-Italic-VariableFont_wght.ttf') format('truetype-variations');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+:root {
+  --text: #4b4b52;
+  --text-h: #101014;
+  --bg: #f7f7f9;
+  --surface: #ffffff;
+  --border: #e2e2e7;
+  --accent: #003d8f;
+  --accent-hover: #002d69;
+  --accent-bg: rgba(0, 61, 143, 0.08);
+  --danger: #b3261e;
+  --success: #1b7a3d;
+  --shadow: rgba(16, 16, 20, 0.06) 0 1px 3px, rgba(16, 16, 20, 0.04) 0 1px 2px;
+
+  --font: 'Overpass', system-ui, 'Segoe UI', Roboto, sans-serif;
+
+  color-scheme: light dark;
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #c3c3cc;
+    --text-h: #f4f4f6;
+    --bg: #131417;
+    --surface: #1b1c21;
+    --border: #2b2c33;
+    --accent: #5b9bff;
+    --accent-hover: #7fb0ff;
+    --accent-bg: rgba(91, 155, 255, 0.12);
+    --danger: #ff6b63;
+    --success: #4ade80;
+    --shadow: rgba(0, 0, 0, 0.4) 0 1px 3px, rgba(0, 0, 0, 0.3) 0 1px 2px;
+  }
+}
+
+* {
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+body {
+  margin: 0;
+}
+
+h1, h2, h3, h4, p, ul {
+  margin: 0;
+}
+
+button, input, select {
+  font: inherit;
+  color: inherit;
+}
+
+#root {
+  min-height: 100svh;
+}

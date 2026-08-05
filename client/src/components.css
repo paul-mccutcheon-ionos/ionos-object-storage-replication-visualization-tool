@@ -1,0 +1,608 @@
+/* Buttons */
+.btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.btn-secondary {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text-h);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.btn-outline {
+  background: transparent;
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--accent-bg);
+}
+
+.btn-danger {
+  background: transparent;
+  color: var(--danger);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: rgba(179, 38, 30, 0.1);
+}
+
+/* Pills / badges */
+.pill {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--accent-bg);
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.pill-user {
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+
+.pill-contract {
+  background: rgba(217, 45, 32, 0.14);
+  color: var(--danger);
+}
+
+.pill-success {
+  background: rgba(27, 122, 61, 0.12);
+  color: var(--success);
+}
+
+.pill-warning {
+  background: rgba(214, 156, 0, 0.15);
+  color: #a06400;
+}
+
+.pill-muted {
+  background: rgba(140, 140, 150, 0.15);
+  color: var(--text);
+}
+
+/* Panels */
+.bucket-list-panel,
+.bucket-detail-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px;
+}
+
+.bucket-list-panel {
+  width: 320px;
+  flex-shrink: 0;
+}
+
+.bucket-detail-panel {
+  flex: 1;
+  min-width: 0;
+}
+
+.bucket-detail-panel.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+.panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+
+.panel-header h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.bucket-detail-subhead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.muted {
+  color: var(--text);
+  opacity: 0.75;
+}
+
+.muted.small,
+.small {
+  font-size: 12px;
+}
+
+/* Bucket list */
+.bucket-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 60vh;
+  overflow: auto;
+}
+
+.bucket-item {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 10px 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bucket-item:hover {
+  background: var(--accent-bg);
+}
+
+.bucket-item.active {
+  background: var(--accent-bg);
+  border-color: var(--accent-border, var(--accent));
+}
+
+.bucket-name {
+  font-weight: 600;
+  color: var(--text-h);
+  font-size: 13px;
+  word-break: break-all;
+}
+
+.bucket-meta {
+  display: flex;
+  gap: 6px;
+}
+
+/* Detail blocks */
+.detail-block {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.detail-block:first-of-type {
+  margin-top: 16px;
+}
+
+.detail-block h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-h);
+  margin-bottom: 10px;
+}
+
+.detail-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.detail-block-header h3 {
+  margin-bottom: 0;
+}
+
+.versioning-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.banner-error {
+  background: rgba(179, 38, 30, 0.1);
+  color: var(--danger);
+  border: 1px solid rgba(179, 38, 30, 0.3);
+}
+
+.banner-info {
+  background: var(--accent-bg);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+
+/* Rule list */
+.rule-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rule-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.rule-item-main {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.rule-item-status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.rule-arrow {
+  color: var(--text);
+  opacity: 0.6;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.rule-arrow-bidirectional {
+  color: var(--accent);
+  opacity: 1;
+}
+
+.rule-dest-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.rule-item-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+/* Rule editor form */
+.rule-editor {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: var(--bg);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field label,
+.field-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.field-static {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.field input[type='text'],
+.field select {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text-h);
+  font-size: 13px;
+}
+
+.field-error {
+  color: var(--danger);
+  font-size: 12px;
+}
+
+.radio-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: normal;
+  color: var(--text);
+}
+
+.prefix-input {
+  margin-top: 4px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text-h);
+  font-size: 13px;
+}
+
+.destination-row {
+  display: flex;
+  gap: 8px;
+}
+
+.destination-row input {
+  flex: 1;
+}
+
+.bucket-picker {
+  list-style: none;
+  padding: 4px;
+  margin: 6px 0 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  max-height: 200px;
+  overflow: auto;
+  background: var(--surface);
+}
+
+.bucket-picker button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: left;
+  background: transparent;
+  border: none;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text-h);
+}
+
+.bucket-picker-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.bucket-picker button:hover {
+  background: var(--accent-bg);
+}
+
+.info-note {
+  display: flex;
+  gap: 10px;
+  background: var(--accent-bg);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.info-note-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 11px;
+  font-style: italic;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.info-note strong {
+  font-size: 12px;
+  color: var(--text-h);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.info-note p {
+  font-size: 12px;
+  color: var(--text);
+}
+
+.rule-editor-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Region badge: circular flag + "Country / City" label, matching DCD */
+.region-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.region-badge-compact {
+  gap: 6px;
+}
+
+.region-flag-circle {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.region-flag-circle svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.region-badge-compact .region-flag-circle {
+  width: 26px;
+  height: 26px;
+}
+
+.region-badge-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.region-badge-place {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.region-badge-compact .region-badge-place {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.region-badge-code {
+  font-size: 11px;
+  color: var(--text);
+  opacity: 0.7;
+}
+
+/* Replication overview diagram */
+.overview-wrap {
+  max-width: 100%;
+}
+
+.overview-diagram {
+  overflow-x: auto;
+  padding: 8px 0 24px;
+}
+
+/* Shrink-to-fit wrapper: its width is the diagram's true content width
+   (not the scroll viewport's), so the absolutely-positioned SVG below -
+   sized to 100% of *this* element - covers the whole scrollable diagram
+   and stays pixel-aligned with the columns no matter how far you scroll. */
+.overview-diagram-inner {
+  position: relative;
+  display: inline-block;
+  min-width: 100%;
+}
+
+.overview-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.edge-path {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.edge-disabled {
+  stroke: var(--text);
+  opacity: 0.35;
+  stroke-dasharray: 4 4;
+}
+
+.arrow-head {
+  fill: var(--accent);
+}
+
+.overview-columns {
+  position: relative;
+  display: flex;
+  gap: 180px;
+  align-items: flex-start;
+}
+
+.overview-column {
+  width: 240px;
+  flex-shrink: 0;
+}
+
+.overview-column-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-h);
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.overview-column-nodes {
+  display: flex;
+  flex-direction: column;
+}
+
+.overview-node {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-h);
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.overview-node:hover {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+}
