@@ -5,6 +5,8 @@ A small web app for managing cross-bucket replication on IONOS Object Storage.
 - **Server**: Node.js + Express, talks to IONOS's S3-compatible API via `@aws-sdk/client-s3`.
 - **Client**: React + Vite SPA.
 
+![Replication Overview screenshot](docs/replication-overview.png)
+
 ## Setup
 
 1. Copy `.env.example` to `.env` and fill in your IONOS Object Storage access/secret key
