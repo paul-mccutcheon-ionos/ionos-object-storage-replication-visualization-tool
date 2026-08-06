@@ -49,6 +49,7 @@ export default function ReplicationOverview({ onOpenBucket }) {
 
   const buckets = data?.buckets || [];
   const edges = data?.edges || [];
+  const bucketErrors = data?.bucketErrors || [];
 
   // Group buckets into columns, one per region, in a stable order.
   const regionOrder = [];
@@ -155,6 +156,13 @@ export default function ReplicationOverview({ onOpenBucket }) {
 
   return (
     <div className="overview-wrap">
+      {bucketErrors.length > 0 && (
+        <div className="banner banner-warning" style={{ marginBottom: 16 }}>
+          Couldn&apos;t read replication rules for {bucketErrors.length} bucket
+          {bucketErrors.length > 1 ? 's' : ''} ({bucketErrors.map((e) => e.bucket).join(', ')}) - some arrows below
+          may be missing. Try refreshing.
+        </div>
+      )}
       {pairEdges.length === 0 && (
         <p className="muted" style={{ marginBottom: 16 }}>
           No replication rules are configured yet across any bucket.
