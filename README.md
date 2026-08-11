@@ -68,13 +68,22 @@ server, so no CORS/URL configuration is needed in development.
   bucket) is still in place. `BucketDetail.jsx` checks for this before calling the API,
   both when adding a normal rule and when setting up the reverse side of a bidirectional
   pair, so it fails fast with a clear message instead of a confusing server error.
-- **Cross-ownership-class replication (user-owned → contract-owned) currently fails** with
-  IONOS's own `"No endpoint specified"` error, reproduced identically in DCD itself
-  (`"The bucket configuration does not allow for replication"`) - confirmed to be a
-  backend-side gap (Cloudian, the user-owned backend, has no routing entry for Ceph RGW,
-  the contract-owned backend) rather than anything fixable in this app. Support tickets are
-  open with IONOS for this; the UI already treats contract-owned destinations as valid, so
-  no changes should be needed here once it's fixed on their end.
+- **Cross-ownership-class replication (user-owned Cloudian → contract-owned Ceph) requires
+  Cloudian's proprietary Cross-System Replication (CSR) headers** — plain `PutBucketReplication`
+  alone gets rejected with `"No endpoint specified"`, because Cloudian has no routing entry
+  for a Ceph-hosted bucket. Per IONOS's internal CSR documentation, the request needs two
+  extra headers - `x-gmt-crr-endpoint` (the destination's endpoint URL) and
+  `x-gmt-crr-credentials` (`accessKey:secretKey` for the destination) - plus a `Content-MD5`
+  of the request body. `server/src/routes/replication.js` (`addCsrHeaders`) attaches these
+  automatically via the AWS SDK's command middleware whenever the source is user-owned and
+  the destination is contract-owned. CSR is documented as **one-way only** - the bidirectional
+  option is only offered when source and destination share the same backend
+  (`ReplicationEditor.jsx`).
+  - As of this writing, IONOS's account still returns `"Request specifying CRR credentials
+    can only be used within a secure request"` even with these headers attached - this looks
+    like an infrastructure-side gap (Cloudian checking whether *it* terminated TLS, which its
+    edge/load balancer likely does instead) rather than anything fixable client-side. Open
+    with IONOS support.
 
 ## Regions
 

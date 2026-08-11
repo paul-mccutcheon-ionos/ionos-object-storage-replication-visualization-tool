@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import crypto from 'node:crypto';
 import {
   GetBucketVersioningCommand,
   PutBucketVersioningCommand,
@@ -8,6 +9,7 @@ import {
 } from '@aws-sdk/client-s3';
 import { getClientForRegion } from '../s3Client.js';
 import { findRegion } from '../regions.js';
+import { listAllBuckets } from '../bucketService.js';
 
 const router = Router({ mergeParams: true });
 
@@ -17,6 +19,25 @@ const PLACEHOLDER_ROLE = 'arn:aws:iam::000000000000:role/not-used-by-ionos';
 
 function bucketArn(bucketName) {
   return `arn:aws:s3:::${bucketName}`;
+}
+
+// Cross-System Replication (Cloudian user-owned -> Ceph contract-owned)
+// isn't part of the public S3 API - Cloudian needs two proprietary headers
+// telling it where and how to reach the Ceph side, or it has no way to
+// resolve the destination (surfaced as its "No endpoint specified" error).
+// It also requires a Content-MD5 of the exact request body.
+function addCsrHeaders(command, { endpoint, accessKey, secretKey }) {
+  command.middlewareStack.add(
+    (next) => async (args) => {
+      args.request.headers['x-gmt-crr-endpoint'] = endpoint;
+      args.request.headers['x-gmt-crr-credentials'] = `${accessKey}:${secretKey}`;
+      if (typeof args.request.body === 'string') {
+        args.request.headers['Content-MD5'] = crypto.createHash('md5').update(args.request.body).digest('base64');
+      }
+      return next(args);
+    },
+    { step: 'build', name: 'csrHeaders' },
+  );
 }
 
 function notFound(err) {
@@ -98,7 +119,7 @@ router.put('/replication', async (req, res) => {
   }
 
   try {
-    findRegion(region);
+    const sourceRegionInfo = findRegion(region);
     const client = getClientForRegion(region);
 
     // IONOS only supports the S3 replication XML schema v1: plain `Prefix`
@@ -114,22 +135,50 @@ router.put('/replication', async (req, res) => {
       },
     }));
 
-    await client.send(
-      new PutBucketReplicationCommand({
-        Bucket: bucket,
-        ReplicationConfiguration: {
-          Role: PLACEHOLDER_ROLE,
-          Rules,
-        },
-      }),
-    );
+    const command = new PutBucketReplicationCommand({
+      Bucket: bucket,
+      ReplicationConfiguration: {
+        Role: PLACEHOLDER_ROLE,
+        Rules,
+      },
+    });
+
+    // All rules on a bucket must share one destination (IONOS rejects
+    // otherwise), so a single lookup tells us whether this is cross-system.
+    if (sourceRegionInfo.ownership === 'user') {
+      const { buckets: allKnownBuckets } = await listAllBuckets();
+      const destBucket = allKnownBuckets.find((b) => b.name === rules[0].destinationBucket);
+      if (destBucket?.ownership === 'contract') {
+        const destRegionInfo = findRegion(destBucket.region);
+        addCsrHeaders(command, {
+          endpoint: destRegionInfo.endpoint,
+          accessKey: process.env.IONOS_S3_ACCESS_KEY,
+          secretKey: process.env.IONOS_S3_SECRET_KEY,
+        });
+      }
+    }
+
+    await client.send(command);
 
     res.json({ ok: true });
   } catch (err) {
     if (err.Code === 'InvalidRequest' && err.message === 'No endpoint specified') {
       return res.status(502).json({
         error:
-          "IONOS rejected this rule with \"No endpoint specified\". This happens when the source and destination bucket are in different ownership classes (user-owned vs. contract-owned) in different regions - this specific combination isn't supported by IONOS's public replication API yet. Try a destination bucket in the same ownership class, or set up this pairing via the DCD console instead.",
+          'IONOS rejected this rule with "No endpoint specified" even with the cross-system replication headers ' +
+          'attached. This usually means CSR (cross-system replication) hasn\'t been enabled for this contract on ' +
+          "IONOS's side yet (cmc_crr_external_enabled on the Cloudian master node) - worth checking with IONOS support.",
+      });
+    }
+    if (err.message?.includes('can only be used within a secure request')) {
+      return res.status(502).json({
+        error:
+          'Cloudian rejected the CRR credentials with "can only be used within a secure request", even though ' +
+          "this request used HTTPS end-to-end from our side. Cloudian checks whether its own S3 service directly " +
+          'terminated the TLS connection - if IONOS\'s edge/load balancer terminates TLS and forwards internally ' +
+          "over plain HTTP, Cloudian sees that hop as insecure regardless of the public endpoint being HTTPS. This " +
+          "is an infrastructure-side gap, not something fixable here - worth escalating to IONOS support with this " +
+          'exact error.',
       });
     }
     res.status(500).json({ error: err.message });

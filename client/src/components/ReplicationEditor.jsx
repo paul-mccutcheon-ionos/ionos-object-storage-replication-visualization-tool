@@ -30,7 +30,10 @@ export default function ReplicationEditor({ sourceBucket, rule, destinationOptio
   const [formError, setFormError] = useState(null);
 
   const matchedDestination = destinationOptions.find((b) => b.name === destinationBucket.trim());
-  const canOfferBidirectional = !rule && matchedDestination?.ownership === 'user';
+  // Cross-system replication (user-owned Cloudian <-> contract-owned Ceph)
+  // is documented as one-way only, so only offer bidirectional within the
+  // same backend (both user-owned or both contract-owned).
+  const canOfferBidirectional = !rule && matchedDestination?.ownership === sourceBucket.ownership;
 
   function handleSubmit(e) {
     e.preventDefault();

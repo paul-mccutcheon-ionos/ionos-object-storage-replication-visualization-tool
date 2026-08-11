@@ -104,7 +104,12 @@ export default function BucketDetail({ bucket, allBuckets }) {
     );
   }
 
-  const canBeSource = bucket.ownership === 'user';
+  // IONOS's docs say only user-owned buckets can be a replication source,
+  // but that's being tested against real accounts as whitelisting rolls out
+  // - so this no longer gates the UI. If a bucket genuinely can't be a
+  // source, IONOS's API will reject the PutBucketReplication call with a
+  // clear error instead.
+  const canBeSource = true;
   const versioningEnabled = versioning === 'Enabled';
 
   async function handleEnableVersioning() {
@@ -229,13 +234,6 @@ export default function BucketDetail({ bucket, allBuckets }) {
       </div>
 
       {error && <div className="banner banner-error">{error}</div>}
-
-      {!canBeSource && (
-        <div className="banner banner-info">
-          Contract-owned buckets can&apos;t be a replication source. This bucket can only be used as a
-          replication destination.
-        </div>
-      )}
 
       <div className="detail-block">
         <h3>Versioning</h3>
