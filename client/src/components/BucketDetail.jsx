@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { api } from '../api.js';
 import ReplicationEditor from './ReplicationEditor.jsx';
+import ObjectLockEditor from './ObjectLockEditor.jsx';
 import RegionBadge from './RegionBadge.jsx';
 import { useRegion } from '../regionsContext.jsx';
 
@@ -75,6 +76,7 @@ export default function BucketDetail({ bucket, allBuckets, onDeleted }) {
   const [busy, setBusy] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [editingRule, setEditingRule] = useState(null); // null | 'new' | rule
+  const [editingObjectLock, setEditingObjectLock] = useState(false);
 
   const load = useCallback(async () => {
     if (!bucket) return;
@@ -122,6 +124,25 @@ export default function BucketDetail({ bucket, allBuckets, onDeleted }) {
     try {
       await api.setVersioning(bucket.region, bucket.name, 'Enabled');
       setVersioning('Enabled');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleSaveObjectLock({ mode, retentionValue, retentionUnit }) {
+    setBusy(true);
+    setError(null);
+    try {
+      await api.setObjectLock(bucket.region, bucket.name, { mode, retentionValue, retentionUnit });
+      setObjectLock({
+        enabled: true,
+        mode: mode === 'none' ? null : mode,
+        retentionDays: mode !== 'none' && retentionUnit === 'Days' ? retentionValue : null,
+        retentionYears: mode !== 'none' && retentionUnit === 'Years' ? retentionValue : null,
+      });
+      setEditingObjectLock(false);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -289,9 +310,23 @@ export default function BucketDetail({ bucket, allBuckets, onDeleted }) {
       </div>
 
       <div className="detail-block">
-        <h3>Object Lock</h3>
+        <div className="detail-block-header">
+          <h3>Object Lock</h3>
+          {!loading && objectLock?.enabled && !editingObjectLock && (
+            <button type="button" className="btn btn-ghost" onClick={() => setEditingObjectLock(true)} disabled={busy}>
+              Edit
+            </button>
+          )}
+        </div>
         {loading ? (
           <p className="muted">Loading…</p>
+        ) : editingObjectLock ? (
+          <ObjectLockEditor
+            current={objectLock}
+            onSave={handleSaveObjectLock}
+            onCancel={() => setEditingObjectLock(false)}
+            saving={busy}
+          />
         ) : (
           <div className="versioning-row">
             <span className={objectLock?.enabled ? 'pill pill-success' : 'pill pill-muted'}>
@@ -305,6 +340,9 @@ export default function BucketDetail({ bucket, allBuckets, onDeleted }) {
             )}
             {objectLock?.enabled && !objectLock.mode && <span className="pill pill-muted">No default retention</span>}
           </div>
+        )}
+        {!loading && !objectLock?.enabled && (
+          <p className="muted small">Object Lock can only be enabled when a bucket is created, not afterward.</p>
         )}
       </div>
 

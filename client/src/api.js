@@ -18,6 +18,8 @@ export const api = {
   getReplicationOverview: () => request('/replication-overview'),
   getVersioning: (region, bucket) => request(`/buckets/${region}/${bucket}/versioning`),
   getObjectLock: (region, bucket) => request(`/buckets/${region}/${bucket}/object-lock`),
+  setObjectLock: (region, bucket, payload) =>
+    request(`/buckets/${region}/${bucket}/object-lock`, { method: 'PUT', body: JSON.stringify(payload) }),
   setVersioning: (region, bucket, status) =>
     request(`/buckets/${region}/${bucket}/versioning`, {
       method: 'PUT',

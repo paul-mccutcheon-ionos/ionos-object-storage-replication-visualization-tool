@@ -7,6 +7,7 @@ import {
   PutBucketReplicationCommand,
   DeleteBucketReplicationCommand,
   GetObjectLockConfigurationCommand,
+  PutObjectLockConfigurationCommand,
 } from '@aws-sdk/client-s3';
 import { getClientForRegion } from '../s3Client.js';
 import { findRegion } from '../regions.js';
@@ -102,6 +103,53 @@ router.get('/object-lock', async (req, res) => {
       return res.json({ enabled: false, mode: null, retentionDays: null, retentionYears: null });
     }
     res.status(500).json({ error: err.message });
+  }
+});
+
+// Object Lock itself can only be turned on at bucket creation, but the
+// default retention rule (mode + period) on an already-locked bucket can be
+// changed anytime - confirmed against a real account (Governance/7 days ->
+// Compliance/30 days succeeded with no error).
+router.put('/object-lock', async (req, res) => {
+  const { region, bucket } = req.params;
+  const { mode, retentionValue, retentionUnit } = req.body; // mode: 'none' | 'GOVERNANCE' | 'COMPLIANCE'
+
+  const hasRetention = mode && mode !== 'none';
+  if (hasRetention) {
+    const value = Number(retentionValue);
+    if (!Number.isFinite(value) || value <= 0) {
+      return res.status(400).json({ error: 'Retention period must be a positive number.' });
+    }
+    if (!['Days', 'Years'].includes(retentionUnit)) {
+      return res.status(400).json({ error: 'Retention unit must be "Days" or "Years".' });
+    }
+  }
+
+  try {
+    findRegion(region);
+    const client = getClientForRegion(region);
+    await client.send(
+      new PutObjectLockConfigurationCommand({
+        Bucket: bucket,
+        ObjectLockConfiguration: {
+          ObjectLockEnabled: 'Enabled',
+          ...(hasRetention
+            ? {
+                Rule: {
+                  DefaultRetention: {
+                    Mode: mode,
+                    ...(retentionUnit === 'Years' ? { Years: Number(retentionValue) } : { Days: Number(retentionValue) }),
+                  },
+                },
+              }
+            : {}),
+        },
+      }),
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    const detail = err.Code && err.Code !== err.message ? `${err.Code}: ${err.message}` : err.message;
+    res.status(500).json({ error: detail });
   }
 });
 
