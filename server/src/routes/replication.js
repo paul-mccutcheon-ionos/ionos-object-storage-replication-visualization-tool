@@ -6,6 +6,7 @@ import {
   GetBucketReplicationCommand,
   PutBucketReplicationCommand,
   DeleteBucketReplicationCommand,
+  GetObjectLockConfigurationCommand,
 } from '@aws-sdk/client-s3';
 import { getClientForRegion } from '../s3Client.js';
 import { findRegion } from '../regions.js';
@@ -78,6 +79,28 @@ router.put('/versioning', async (req, res) => {
     );
     res.json({ status });
   } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/object-lock', async (req, res) => {
+  const { region, bucket } = req.params;
+  try {
+    findRegion(region);
+    const client = getClientForRegion(region);
+    const out = await client.send(new GetObjectLockConfigurationCommand({ Bucket: bucket }));
+    const config = out.ObjectLockConfiguration;
+    const retention = config?.Rule?.DefaultRetention;
+    res.json({
+      enabled: config?.ObjectLockEnabled === 'Enabled',
+      mode: retention?.Mode || null,
+      retentionDays: retention?.Days ?? null,
+      retentionYears: retention?.Years ?? null,
+    });
+  } catch (err) {
+    if (err.Code === 'ObjectLockConfigurationNotFoundError' || err?.$metadata?.httpStatusCode === 404) {
+      return res.json({ enabled: false, mode: null, retentionDays: null, retentionYears: null });
+    }
     res.status(500).json({ error: err.message });
   }
 });

@@ -57,6 +57,34 @@
   background: rgba(179, 38, 30, 0.1);
 }
 
+.icon-btn {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.icon-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.icon-btn-danger {
+  color: var(--danger);
+}
+
+.icon-btn-danger:hover:not(:disabled) {
+  background: rgba(179, 38, 30, 0.1);
+  border-color: var(--danger);
+}
+
 /* Pills / badges */
 .pill {
   display: inline-block;

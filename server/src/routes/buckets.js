@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { CreateBucketCommand, PutObjectLockConfigurationCommand } from '@aws-sdk/client-s3';
+import { CreateBucketCommand, DeleteBucketCommand, PutObjectLockConfigurationCommand } from '@aws-sdk/client-s3';
 import { REGIONS, findRegion } from '../regions.js';
 import { listAllBuckets } from '../bucketService.js';
 import { getClientForRegion } from '../s3Client.js';
@@ -81,6 +81,30 @@ router.post('/', async (req, res) => {
     if (err.Code === 'BucketAlreadyExists' || err.Code === 'BucketAlreadyOwnedByYou') {
       return res.status(409).json({
         error: `A bucket named "${name}" already exists. Bucket names must be unique across all IONOS Object Storage regions - try a different name.`,
+      });
+    }
+    const detail = err.Code && err.Code !== err.message ? `${err.Code}: ${err.message}` : err.message;
+    res.status(500).json({ error: detail });
+  }
+});
+
+// DELETE /api/buckets/:region/:bucket - delete an (empty) bucket.
+router.delete('/:region/:bucket', async (req, res) => {
+  const { region, bucket } = req.params;
+  try {
+    findRegion(region);
+  } catch {
+    return res.status(400).json({ error: `Unknown region "${region}"` });
+  }
+
+  try {
+    const client = getClientForRegion(region);
+    await client.send(new DeleteBucketCommand({ Bucket: bucket }));
+    res.json({ ok: true });
+  } catch (err) {
+    if (err.Code === 'BucketNotEmpty') {
+      return res.status(409).json({
+        error: `"${bucket}" isn't empty. Delete all objects (and versions) in the bucket first.`,
       });
     }
     const detail = err.Code && err.Code !== err.message ? `${err.Code}: ${err.message}` : err.message;

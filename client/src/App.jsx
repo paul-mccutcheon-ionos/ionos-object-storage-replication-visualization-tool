@@ -54,6 +54,11 @@ export default function App() {
     setActiveNav('buckets');
   }
 
+  async function handleBucketDeleted() {
+    setSelected(null);
+    await loadBuckets();
+  }
+
   return (
     <div className="app-shell">
       <header className="app-topbar">
@@ -121,6 +126,7 @@ export default function App() {
                   key={selected ? `${selected.region}/${selected.name}` : 'none'}
                   bucket={selected}
                   allBuckets={buckets}
+                  onDeleted={handleBucketDeleted}
                 />
               </main>
             </>

@@ -14,8 +14,10 @@ export const api = {
   getRegions: () => request('/regions'),
   listBuckets: () => request('/buckets'),
   createBucket: (payload) => request('/buckets', { method: 'POST', body: JSON.stringify(payload) }),
+  deleteBucket: (region, bucket) => request(`/buckets/${region}/${bucket}`, { method: 'DELETE' }),
   getReplicationOverview: () => request('/replication-overview'),
   getVersioning: (region, bucket) => request(`/buckets/${region}/${bucket}/versioning`),
+  getObjectLock: (region, bucket) => request(`/buckets/${region}/${bucket}/object-lock`),
   setVersioning: (region, bucket, status) =>
     request(`/buckets/${region}/${bucket}/versioning`, {
       method: 'PUT',

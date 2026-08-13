@@ -65,13 +65,15 @@ function RuleItem({ rule, sourceBucketName, allBuckets, onEdit, onDelete, busy }
   );
 }
 
-export default function BucketDetail({ bucket, allBuckets }) {
+export default function BucketDetail({ bucket, allBuckets, onDeleted }) {
   const region = useRegion(bucket?.region);
   const [versioning, setVersioning] = useState(null);
+  const [objectLock, setObjectLock] = useState(null);
   const [rules, setRules] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [editingRule, setEditingRule] = useState(null); // null | 'new' | rule
 
   const load = useCallback(async () => {
@@ -79,12 +81,14 @@ export default function BucketDetail({ bucket, allBuckets }) {
     setLoading(true);
     setError(null);
     try {
-      const [v, r] = await Promise.all([
+      const [v, r, l] = await Promise.all([
         api.getVersioning(bucket.region, bucket.name),
         api.getReplication(bucket.region, bucket.name),
+        api.getObjectLock(bucket.region, bucket.name),
       ]);
       setVersioning(v.status);
       setRules(r.rules);
+      setObjectLock(l);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -122,6 +126,21 @@ export default function BucketDetail({ bucket, allBuckets }) {
       setError(err.message);
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function handleDeleteBucket() {
+    if (!window.confirm(`Delete bucket "${bucket.name}"? This can't be undone, and the bucket must be empty.`)) {
+      return;
+    }
+    setDeleting(true);
+    setError(null);
+    try {
+      await api.deleteBucket(bucket.region, bucket.name);
+      onDeleted?.(bucket);
+    } catch (err) {
+      setError(err.message);
+      setDeleting(false);
     }
   }
 
@@ -231,6 +250,19 @@ export default function BucketDetail({ bucket, allBuckets }) {
             </span>
           </div>
         </div>
+        <button
+          type="button"
+          className="icon-btn icon-btn-danger"
+          onClick={handleDeleteBucket}
+          disabled={deleting}
+          title="Delete bucket"
+          aria-label="Delete bucket"
+        >
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6h16Z" />
+            <path d="M10 11v6M14 11v6" />
+          </svg>
+        </button>
       </div>
 
       {error && <div className="banner banner-error">{error}</div>}
@@ -253,6 +285,26 @@ export default function BucketDetail({ bucket, allBuckets }) {
         )}
         {!versioningEnabled && (
           <p className="muted small">Versioning must be enabled on both source and destination buckets for replication to work.</p>
+        )}
+      </div>
+
+      <div className="detail-block">
+        <h3>Object Lock</h3>
+        {loading ? (
+          <p className="muted">Loading…</p>
+        ) : (
+          <div className="versioning-row">
+            <span className={objectLock?.enabled ? 'pill pill-success' : 'pill pill-muted'}>
+              {objectLock?.enabled ? 'Enabled' : 'Disabled'}
+            </span>
+            {objectLock?.enabled && objectLock.mode && (
+              <span className="pill pill-user">
+                {objectLock.mode === 'GOVERNANCE' ? 'Governance mode' : 'Compliance mode'} -{' '}
+                {objectLock.retentionDays ? `${objectLock.retentionDays} days` : `${objectLock.retentionYears} years`}
+              </span>
+            )}
+            {objectLock?.enabled && !objectLock.mode && <span className="pill pill-muted">No default retention</span>}
+          </div>
         )}
       </div>
 
