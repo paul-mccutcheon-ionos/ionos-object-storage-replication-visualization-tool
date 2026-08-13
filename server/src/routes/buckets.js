@@ -76,7 +76,15 @@ router.post('/', async (req, res) => {
 
     res.json({ ok: true, bucket: { name, region: regionInfo.code, ownership: regionInfo.ownership } });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    // The SDK's own .message is frequently just "UnknownError" for this API
+    // (the real reason lands in .Code/.name instead), so prefer those.
+    if (err.Code === 'BucketAlreadyExists' || err.Code === 'BucketAlreadyOwnedByYou') {
+      return res.status(409).json({
+        error: `A bucket named "${name}" already exists. Bucket names must be unique across all IONOS Object Storage regions - try a different name.`,
+      });
+    }
+    const detail = err.Code && err.Code !== err.message ? `${err.Code}: ${err.message}` : err.message;
+    res.status(500).json({ error: detail });
   }
 });
 
