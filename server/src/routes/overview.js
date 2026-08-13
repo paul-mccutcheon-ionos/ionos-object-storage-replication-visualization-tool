@@ -56,17 +56,20 @@ async function mapWithConcurrency(items, limit, fn) {
 }
 
 // GET /api/replication-overview
-// Scans every user-owned bucket (the only valid replication sources) and
-// builds the full set of source -> destination edges across the account,
-// so the UI can render a site/bucket replication map.
+// Scans every bucket in the account and builds the full set of source ->
+// destination edges, so the UI can render a site/bucket replication map.
+//
+// This used to only scan user-owned buckets, on the assumption that only
+// user-owned buckets could be a replication source. That's no longer a
+// given now that contract-owned -> contract-owned replication has been
+// confirmed working against real accounts, so every bucket is checked.
 router.get('/', async (req, res) => {
   const { buckets, regionErrors } = await listAllBuckets();
   const bucketIndex = new Map(buckets.map((b) => [b.name, b]));
-  const sourceCandidates = buckets.filter((b) => b.ownership === 'user');
 
   const bucketErrors = [];
 
-  const edgeLists = await mapWithConcurrency(sourceCandidates, CONCURRENCY, async (bucket) => {
+  const edgeLists = await mapWithConcurrency(buckets, CONCURRENCY, async (bucket) => {
     try {
       const rules = await getReplicationWithRetry(bucket);
       return rules.map((rule) => {
