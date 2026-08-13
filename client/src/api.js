@@ -13,6 +13,7 @@ async function request(path, options = {}) {
 export const api = {
   getRegions: () => request('/regions'),
   listBuckets: () => request('/buckets'),
+  createBucket: (payload) => request('/buckets', { method: 'POST', body: JSON.stringify(payload) }),
   getReplicationOverview: () => request('/replication-overview'),
   getVersioning: (region, bucket) => request(`/buckets/${region}/${bucket}/versioning`),
   setVersioning: (region, bucket, status) =>

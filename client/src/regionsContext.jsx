@@ -1,28 +1,34 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { api } from './api.js';
 
-const RegionsContext = createContext({});
+const RegionsContext = createContext({ byCode: {}, list: [] });
 
 export function RegionsProvider({ children }) {
-  const [regionsByCode, setRegionsByCode] = useState({});
+  const [state, setState] = useState({ byCode: {}, list: [] });
 
   useEffect(() => {
     api
       .getRegions()
       .then((data) => {
-        const map = {};
-        (data.regions || []).forEach((r) => {
-          map[r.code] = r;
+        const list = data.regions || [];
+        const byCode = {};
+        list.forEach((r) => {
+          byCode[r.code] = r;
         });
-        setRegionsByCode(map);
+        setState({ byCode, list });
       })
       .catch(() => {});
   }, []);
 
-  return <RegionsContext.Provider value={regionsByCode}>{children}</RegionsContext.Provider>;
+  return <RegionsContext.Provider value={state}>{children}</RegionsContext.Provider>;
 }
 
 export function useRegion(code) {
-  const regionsByCode = useContext(RegionsContext);
-  return regionsByCode[code] || null;
+  const { byCode } = useContext(RegionsContext);
+  return byCode[code] || null;
+}
+
+export function useAllRegions() {
+  const { list } = useContext(RegionsContext);
+  return list;
 }

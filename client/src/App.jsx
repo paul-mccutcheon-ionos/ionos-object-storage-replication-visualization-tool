@@ -3,6 +3,7 @@ import { api } from './api.js';
 import BucketList from './components/BucketList.jsx';
 import BucketDetail from './components/BucketDetail.jsx';
 import ReplicationOverview from './components/ReplicationOverview.jsx';
+import CreateBucket from './components/CreateBucket.jsx';
 import EnvControls from './components/EnvControls.jsx';
 import ionosLogo from './assets/ionos-cloud-logo.png';
 import pkg from '../package.json';
@@ -12,6 +13,7 @@ import './components.css';
 const NAV_ITEMS = [
   { key: 'overview', label: 'Replication Overview' },
   { key: 'buckets', label: 'Buckets & Replication' },
+  { key: 'create', label: 'Create Bucket' },
 ];
 
 export default function App() {
@@ -42,6 +44,12 @@ export default function App() {
   }, [loadBuckets]);
 
   function openBucketFromOverview(bucket) {
+    setSelected(bucket);
+    setActiveNav('buckets');
+  }
+
+  async function handleBucketCreated(bucket) {
+    await loadBuckets();
     setSelected(bucket);
     setActiveNav('buckets');
   }
@@ -115,6 +123,16 @@ export default function App() {
                   allBuckets={buckets}
                 />
               </main>
+            </>
+          )}
+
+          {activeNav === 'create' && (
+            <>
+              <div className="content-header">
+                <h1>Create Bucket</h1>
+                <p>Create a new IONOS Object Storage bucket.</p>
+              </div>
+              <CreateBucket onCreated={handleBucketCreated} />
             </>
           )}
         </div>

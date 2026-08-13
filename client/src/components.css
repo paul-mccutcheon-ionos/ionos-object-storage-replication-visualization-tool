@@ -606,3 +606,106 @@
   border-color: var(--accent);
   background: var(--accent-bg);
 }
+
+.banner-success {
+  background: rgba(27, 122, 61, 0.12);
+  color: var(--success);
+  border: 1px solid rgba(27, 122, 61, 0.35);
+}
+
+/* Create Bucket wizard */
+.create-bucket-form {
+  max-width: 760px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.wizard-step {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.wizard-step-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.wizard-step-header h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.wizard-step-number {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.region-group {
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+}
+
+.wizard-step > .region-group:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
+.region-group-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.region-group-notes {
+  margin: 0 0 12px;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text);
+}
+
+.region-option-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.region-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  flex: 1 1 200px;
+}
+
+.region-option:hover {
+  border-color: var(--accent);
+}
+
+.region-option-checked {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+}
