@@ -356,6 +356,14 @@ export default function BucketDetail({ bucket, allBuckets, onDeleted }) {
           )}
         </div>
 
+        {!loading && bucket.ownership === 'user' && objectLock?.enabled && (
+          <div className="banner banner-warning" style={{ marginBottom: 12 }}>
+            This bucket has Object Lock enabled. Cloudian (user-owned) doesn't allow replication rules to be
+            configured on an Object-Lock-enabled bucket at all - adding a rule here will fail. This restriction
+            doesn't apply to contract-owned (Ceph) buckets.
+          </div>
+        )}
+
         {loading ? (
           <p className="muted">Loading…</p>
         ) : rules.length === 0 && editingRule !== 'new' ? (

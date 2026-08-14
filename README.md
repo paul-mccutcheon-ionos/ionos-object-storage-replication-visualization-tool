@@ -84,6 +84,12 @@ server, so no CORS/URL configuration is needed in development.
     like an infrastructure-side gap (Cloudian checking whether *it* terminated TLS, which its
     edge/load balancer likely does instead) rather than anything fixable client-side. Open
     with IONOS support.
+- **Cloudian (user-owned) refuses to configure replication at all on a bucket that has Object
+  Lock enabled** — `PutBucketReplication` fails with `"MethodNotAllowed"` (405) regardless of
+  destination, confirmed against a real account. Ceph (contract-owned) doesn't have this
+  restriction. Not fixable client-side; `BucketDetail.jsx` shows a warning banner in the
+  Replication rules section when this applies, and `replication.js` translates the raw 405
+  into a clear message rather than the opaque default.
 
 ## Regions
 

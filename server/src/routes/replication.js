@@ -233,6 +233,15 @@ router.put('/replication', async (req, res) => {
 
     res.json({ ok: true });
   } catch (err) {
+    if (err.Code === 'MethodNotAllowed' && findRegion(region).ownership === 'user') {
+      return res.status(409).json({
+        error:
+          'Cloudian rejected this with "MethodNotAllowed" - confirmed this happens when the source bucket has ' +
+          "Object Lock enabled. Cloudian (user-owned) doesn't allow replication rules to be configured on an " +
+          'Object-Lock-enabled bucket at all, regardless of destination - Ceph (contract-owned) doesn\'t have this ' +
+          'restriction. Not something fixable here; worth raising with IONOS if this pairing is needed.',
+      });
+    }
     if (err.Code === 'InvalidRequest' && err.message === 'No endpoint specified') {
       return res.status(502).json({
         error:
