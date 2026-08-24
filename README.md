@@ -20,22 +20,34 @@ A small web app for managing cross-bucket replication on IONOS Object Storage.
    npm install
    ```
 
-## Run
+## Run (development)
 
-Start the API server (port 4000 by default):
+Add `PORT=4000` to your `.env` so the API server doesn't collide with the client's dev port,
+then start the API server:
 
 ```
 npm run dev
 ```
 
-In a second terminal, start the client (port 5173):
+In a second terminal, start the client (port 3000):
 
 ```
 npm run dev:client
 ```
 
-Open http://localhost:5173. The Vite dev server proxies `/api` requests to the Express
-server, so no CORS/URL configuration is needed in development.
+Open http://localhost:3000. The Vite dev server proxies `/api` requests to the Express
+server on port 4000, so no CORS/URL configuration is needed in development.
+
+## Run (production)
+
+```
+npm start
+```
+
+This builds the React client and starts a single Express process that serves the built
+client and the `/api` routes together on **port 3000** (override with the `PORT` env var).
+This is the mode used for IONOS Marketplace hosting, which requires the app to be a single
+process listening on port 3000.
 
 ## What it does
 

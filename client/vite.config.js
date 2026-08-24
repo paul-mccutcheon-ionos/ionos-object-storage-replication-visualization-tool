@@ -10,7 +10,4 @@ export default defineConfig({
       '/api': 'http://localhost:4000',
     },
   },
-  preview: {
-    port: 3000,
-  },
 })

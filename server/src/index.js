@@ -30,7 +30,13 @@ app.use('/api/settings', settingsRouter);
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 
-const port = process.env.PORT || 4000;
+const clientDist = path.resolve(__dirname, '../../client/dist');
+app.use(express.static(clientDist));
+app.get(/^(?!\/api).*/, (req, res) => {
+  res.sendFile(path.join(clientDist, 'index.html'));
+});
+
+const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`IONOS bucket replication server listening on http://localhost:${port}`);
 });
