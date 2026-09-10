@@ -1,8 +1,15 @@
 import RegionBadge from './RegionBadge.jsx';
 import { useRegion } from '../regionsContext.jsx';
 
-function BucketRow({ b, isSelected, onSelect }) {
+const ROLE_LABELS = {
+  source: { label: 'Replication Source', className: 'pill pill-success' },
+  target: { label: 'Replication Target', className: 'pill pill-user' },
+  bidirectional: { label: 'Replication Bi-directional', className: 'pill pill-warning' },
+};
+
+function BucketRow({ b, isSelected, onSelect, replicationRole }) {
   const region = useRegion(b.region);
+  const role = replicationRole && ROLE_LABELS[replicationRole];
   return (
     <li>
       <button type="button" className={isSelected ? 'bucket-item active' : 'bucket-item'} onClick={() => onSelect(b)}>
@@ -12,13 +19,14 @@ function BucketRow({ b, isSelected, onSelect }) {
           <span className={b.ownership === 'user' ? 'pill pill-user' : 'pill pill-contract'}>
             {b.ownership === 'user' ? 'user-owned' : 'contract-owned'}
           </span>
+          {role && <span className={role.className}>{role.label}</span>}
         </span>
       </button>
     </li>
   );
 }
 
-export default function BucketList({ buckets, loading, error, selected, onSelect, onRefresh }) {
+export default function BucketList({ buckets, loading, error, selected, onSelect, onRefresh, replicationRoles }) {
   return (
     <section className="bucket-list-panel">
       <div className="panel-header">
@@ -37,7 +45,16 @@ export default function BucketList({ buckets, loading, error, selected, onSelect
       <ul className="bucket-list">
         {buckets.map((b) => {
           const isSelected = selected && selected.name === b.name && selected.region === b.region;
-          return <BucketRow key={`${b.region}/${b.name}`} b={b} isSelected={isSelected} onSelect={onSelect} />;
+          const replicationRole = replicationRoles?.get(b.name);
+          return (
+            <BucketRow
+              key={`${b.region}/${b.name}`}
+              b={b}
+              isSelected={isSelected}
+              onSelect={onSelect}
+              replicationRole={replicationRole}
+            />
+          );
         })}
       </ul>
     </section>

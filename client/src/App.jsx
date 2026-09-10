@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { api } from './api.js';
 import BucketList from './components/BucketList.jsx';
 import BucketDetail from './components/BucketDetail.jsx';
@@ -24,6 +24,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selected, setSelected] = useState(null); // { name, region, ownership }
+  const [replicationEdges, setReplicationEdges] = useState([]);
 
   const loadBuckets = useCallback(async () => {
     setLoading(true);
@@ -39,9 +40,37 @@ export default function App() {
     }
   }, []);
 
+  const loadReplicationEdges = useCallback(async () => {
+    try {
+      const data = await api.getReplicationOverview();
+      setReplicationEdges(data.edges || []);
+    } catch {
+      // Non-fatal: the bucket list simply won't show replication-status pills.
+    }
+  }, []);
+
   useEffect(() => {
     loadBuckets();
-  }, [loadBuckets]);
+    loadReplicationEdges();
+  }, [loadBuckets, loadReplicationEdges]);
+
+  const replicationRoles = useMemo(() => {
+    const sources = new Set();
+    const targets = new Set();
+    replicationEdges
+      .filter((e) => e.status === 'Enabled')
+      .forEach((e) => {
+        sources.add(e.source.name);
+        targets.add(e.destination.name);
+      });
+    const roles = new Map();
+    new Set([...sources, ...targets]).forEach((name) => {
+      const isSource = sources.has(name);
+      const isTarget = targets.has(name);
+      roles.set(name, isSource && isTarget ? 'bidirectional' : isSource ? 'source' : 'target');
+    });
+    return roles;
+  }, [replicationEdges]);
 
   function openBucketFromOverview(bucket) {
     setSelected(bucket);
@@ -57,6 +86,7 @@ export default function App() {
   async function handleBucketDeleted() {
     setSelected(null);
     await loadBuckets();
+    await loadReplicationEdges();
   }
 
   return (
@@ -121,12 +151,14 @@ export default function App() {
                   selected={selected}
                   onSelect={setSelected}
                   onRefresh={loadBuckets}
+                  replicationRoles={replicationRoles}
                 />
                 <BucketDetail
                   key={selected ? `${selected.region}/${selected.name}` : 'none'}
                   bucket={selected}
                   allBuckets={buckets}
                   onDeleted={handleBucketDeleted}
+                  onReplicationChanged={loadReplicationEdges}
                 />
               </main>
             </>

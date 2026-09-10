@@ -66,7 +66,7 @@ function RuleItem({ rule, sourceBucketName, allBuckets, onEdit, onDelete, busy }
   );
 }
 
-export default function BucketDetail({ bucket, allBuckets, onDeleted }) {
+export default function BucketDetail({ bucket, allBuckets, onDeleted, onReplicationChanged }) {
   const region = useRegion(bucket?.region);
   const [versioning, setVersioning] = useState(null);
   const [objectLock, setObjectLock] = useState(null);
@@ -176,6 +176,7 @@ export default function BucketDetail({ bucket, allBuckets, onDeleted }) {
       }
       setRules(nextRules);
       setEditingRule(null);
+      onReplicationChanged?.();
       return true;
     } catch (err) {
       setError(err.message);
@@ -218,6 +219,7 @@ export default function BucketDetail({ bucket, allBuckets, onDeleted }) {
       };
       const nextDestRules = [...existing.rules.filter((r) => r.id !== reverseId), reverseRule];
       await api.setReplication(destBucket.region, destBucket.name, nextDestRules);
+      onReplicationChanged?.();
     } catch (err) {
       setError(`Saved this bucket's rule, but the reverse rule on "${destBucket.name}" failed: ${err.message}`);
     } finally {
