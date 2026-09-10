@@ -1,7 +1,7 @@
 {
   "name": "ionos-bucket-replication-tool",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Web app for managing IONOS Object Storage bucket replication",
   "workspaces": [
     "server",
