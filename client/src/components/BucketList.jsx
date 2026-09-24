@@ -3,13 +3,14 @@ import { useRegion } from '../regionsContext.jsx';
 
 const ROLE_LABELS = {
   source: { label: 'Replication Source', className: 'pill pill-success' },
-  target: { label: 'Replication Target', className: 'pill pill-user' },
-  bidirectional: { label: 'Replication Bi-directional', className: 'pill pill-warning' },
+  target: { label: 'Replication Target', className: 'pill pill-warning' },
+  bidirectional: { label: 'Replication Bi-directional', className: 'pill pill-user' },
 };
 
-function BucketRow({ b, isSelected, onSelect, replicationRole }) {
+function BucketRow({ b, isSelected, onSelect, replicationRole, objectLockEnabled }) {
   const region = useRegion(b.region);
   const role = replicationRole && ROLE_LABELS[replicationRole];
+  const hasStatusPills = role || objectLockEnabled;
   return (
     <li>
       <button type="button" className={isSelected ? 'bucket-item active' : 'bucket-item'} onClick={() => onSelect(b)}>
@@ -19,14 +20,28 @@ function BucketRow({ b, isSelected, onSelect, replicationRole }) {
           <span className={b.ownership === 'user' ? 'pill pill-user' : 'pill pill-contract'}>
             {b.ownership === 'user' ? 'user-owned' : 'contract-owned'}
           </span>
-          {role && <span className={role.className}>{role.label}</span>}
         </span>
+        {hasStatusPills && (
+          <span className="bucket-status-pills">
+            {role && <span className={role.className}>{role.label}</span>}
+            {objectLockEnabled && <span className="pill pill-purple">Object Lock</span>}
+          </span>
+        )}
       </button>
     </li>
   );
 }
 
-export default function BucketList({ buckets, loading, error, selected, onSelect, onRefresh, replicationRoles }) {
+export default function BucketList({
+  buckets,
+  loading,
+  error,
+  selected,
+  onSelect,
+  onRefresh,
+  replicationRoles,
+  objectLockBuckets,
+}) {
   return (
     <section className="bucket-list-panel">
       <div className="panel-header">
@@ -46,6 +61,7 @@ export default function BucketList({ buckets, loading, error, selected, onSelect
         {buckets.map((b) => {
           const isSelected = selected && selected.name === b.name && selected.region === b.region;
           const replicationRole = replicationRoles?.get(b.name);
+          const objectLockEnabled = objectLockBuckets?.has(b.name);
           return (
             <BucketRow
               key={`${b.region}/${b.name}`}
@@ -53,6 +69,7 @@ export default function BucketList({ buckets, loading, error, selected, onSelect
               isSelected={isSelected}
               onSelect={onSelect}
               replicationRole={replicationRole}
+              objectLockEnabled={objectLockEnabled}
             />
           );
         })}

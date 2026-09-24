@@ -4,6 +4,7 @@ import BucketList from './components/BucketList.jsx';
 import BucketDetail from './components/BucketDetail.jsx';
 import ReplicationOverview from './components/ReplicationOverview.jsx';
 import CreateBucket from './components/CreateBucket.jsx';
+import ObjectEncryption from './components/ObjectEncryption.jsx';
 import EnvControls from './components/EnvControls.jsx';
 import ionosLogo from './assets/ionos-cloud-logo.png';
 import pkg from '../package.json';
@@ -13,6 +14,7 @@ import './components.css';
 const NAV_ITEMS = [
   { key: 'overview', label: 'Replication Overview' },
   { key: 'buckets', label: 'Buckets & Replication' },
+  { key: 'encryption', label: 'Object Encryption' },
   { key: 'create', label: 'Create Bucket' },
 ];
 
@@ -25,6 +27,7 @@ export default function App() {
   const [error, setError] = useState(null);
   const [selected, setSelected] = useState(null); // { name, region, ownership }
   const [replicationEdges, setReplicationEdges] = useState([]);
+  const [objectLockBuckets, setObjectLockBuckets] = useState(new Set());
 
   const loadBuckets = useCallback(async () => {
     setLoading(true);
@@ -44,8 +47,9 @@ export default function App() {
     try {
       const data = await api.getReplicationOverview();
       setReplicationEdges(data.edges || []);
+      setObjectLockBuckets(new Set((data.buckets || []).filter((b) => b.objectLockEnabled).map((b) => b.name)));
     } catch {
-      // Non-fatal: the bucket list simply won't show replication-status pills.
+      // Non-fatal: the bucket list simply won't show replication/Object Lock status pills.
     }
   }, []);
 
@@ -79,6 +83,7 @@ export default function App() {
 
   async function handleBucketCreated(bucket) {
     await loadBuckets();
+    await loadReplicationEdges();
     setSelected(bucket);
     setActiveNav('buckets');
   }
@@ -152,6 +157,7 @@ export default function App() {
                   onSelect={setSelected}
                   onRefresh={loadBuckets}
                   replicationRoles={replicationRoles}
+                  objectLockBuckets={objectLockBuckets}
                 />
                 <BucketDetail
                   key={selected ? `${selected.region}/${selected.name}` : 'none'}
@@ -161,6 +167,16 @@ export default function App() {
                   onReplicationChanged={loadReplicationEdges}
                 />
               </main>
+            </>
+          )}
+
+          {activeNav === 'encryption' && (
+            <>
+              <div className="content-header">
+                <h1>Object Encryption</h1>
+                <p>Manage your SSE-C encryption key and browse buckets for encrypted objects.</p>
+              </div>
+              <ObjectEncryption buckets={buckets} objectLockBuckets={objectLockBuckets} />
             </>
           )}
 

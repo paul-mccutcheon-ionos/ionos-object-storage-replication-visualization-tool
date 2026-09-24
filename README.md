@@ -59,6 +59,14 @@ process listening on port 3000.
   optionally be made **bidirectional** (only offered when the destination is a user-owned
   bucket, since only user-owned buckets can be a replication source) — this adds a matching
   rule on the destination bucket that points back at the source, via a second API call.
+- **Object Encryption**: generate or upload an SSE-C encryption key (a single symmetric
+  AES-256 secret, not a public/private key pair — IONOS never stores a copy), then browse a
+  bucket's objects with each one flagged Unencrypted / SSE-C Encrypted / Server-managed.
+  Download decrypts automatically using the configured key (or a one-off pasted key);
+  upload can optionally SSE-C encrypt a new object — encryption can only be set at upload
+  time, not applied afterwards. Each object also has Delete, Versions, Access Control List
+  (ACL), and Copy URL actions, plus a per-object Object Lock page (retention + legal hold)
+  when the bucket has Object Lock enabled.
 
 ## IONOS-specific rules encoded in this app
 

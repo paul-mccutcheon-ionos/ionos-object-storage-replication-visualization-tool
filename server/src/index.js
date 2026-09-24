@@ -7,6 +7,7 @@ import bucketsRouter from './routes/buckets.js';
 import replicationRouter from './routes/replication.js';
 import overviewRouter from './routes/overview.js';
 import settingsRouter from './routes/settings.js';
+import objectsRouter from './routes/objects.js';
 import { REGIONS } from './regions.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -25,6 +26,7 @@ app.use(express.json());
 app.get('/api/regions', (req, res) => res.json({ regions: REGIONS }));
 app.use('/api/replication-overview', overviewRouter);
 app.use('/api/buckets', bucketsRouter);
+app.use('/api/buckets/:region/:bucket/objects', objectsRouter);
 app.use('/api/buckets/:region/:bucket', replicationRouter);
 app.use('/api/settings', settingsRouter);
 

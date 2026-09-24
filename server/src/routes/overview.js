@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { GetBucketReplicationCommand } from '@aws-sdk/client-s3';
+import { GetBucketReplicationCommand, GetObjectLockConfigurationCommand } from '@aws-sdk/client-s3';
 import { listAllBuckets } from '../bucketService.js';
 import { getClientForRegion } from '../s3Client.js';
 
@@ -42,6 +42,26 @@ async function getReplicationWithRetry(bucket) {
   throw lastErr;
 }
 
+function isObjectLockNotFound(err) {
+  return err?.Code === 'ObjectLockConfigurationNotFoundError' || err?.$metadata?.httpStatusCode === 404;
+}
+
+async function getObjectLockEnabledWithRetry(bucket) {
+  let lastErr;
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      const client = getClientForRegion(bucket.region);
+      const out = await client.send(new GetObjectLockConfigurationCommand({ Bucket: bucket.name }));
+      return out.ObjectLockConfiguration?.ObjectLockEnabled === 'Enabled';
+    } catch (err) {
+      if (isObjectLockNotFound(err)) return false;
+      lastErr = err;
+      if (attempt < MAX_ATTEMPTS) await sleep(RETRY_DELAY_MS * attempt);
+    }
+  }
+  throw lastErr;
+}
+
 async function mapWithConcurrency(items, limit, fn) {
   const results = new Array(items.length);
   let next = 0;
@@ -70,6 +90,12 @@ router.get('/', async (req, res) => {
   const bucketErrors = [];
 
   const edgeLists = await mapWithConcurrency(buckets, CONCURRENCY, async (bucket) => {
+    try {
+      bucket.objectLockEnabled = await getObjectLockEnabledWithRetry(bucket);
+    } catch (err) {
+      console.error(`Failed to read Object Lock config for bucket "${bucket.name}":`, err.message);
+    }
+
     try {
       const rules = await getReplicationWithRetry(bucket);
       return rules.map((rule) => {

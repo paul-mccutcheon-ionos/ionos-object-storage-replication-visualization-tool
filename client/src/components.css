@@ -122,6 +122,11 @@
   color: var(--text);
 }
 
+.pill-purple {
+  background: rgba(147, 51, 234, 0.14);
+  color: #a855f7;
+}
+
 /* Panels */
 .bucket-list-panel,
 .bucket-detail-panel {
@@ -132,7 +137,9 @@
 }
 
 .bucket-list-panel {
-  width: 360px;
+  width: max-content;
+  min-width: 360px;
+  max-width: 520px;
   flex-shrink: 0;
 }
 
@@ -187,7 +194,8 @@
   flex-direction: column;
   gap: 4px;
   max-height: 60vh;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .bucket-item {
@@ -216,10 +224,18 @@
   font-weight: 600;
   color: var(--text-h);
   font-size: 13px;
-  word-break: break-all;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .bucket-meta {
+  display: flex;
+  gap: 6px;
+}
+
+.bucket-status-pills {
   display: flex;
   gap: 6px;
 }
@@ -736,4 +752,198 @@
 .region-option-checked {
   border-color: var(--accent);
   background: var(--accent-bg);
+}
+
+/* Object browser table */
+.object-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.object-table th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--text);
+  opacity: 0.65;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.object-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-h);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.object-table tr:last-child td {
+  border-bottom: none;
+}
+
+.object-key-cell {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 12px;
+  max-width: 420px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.object-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+.object-actions-cell {
+  position: relative;
+}
+
+/* Dropdown menu (three-dot object actions) - portalled to <body> so it's
+   never clipped by the object table's scroll container, positioned via
+   inline top/right computed from the trigger button. */
+.dropdown-menu {
+  min-width: 160px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+}
+
+.dropdown-menu-portal {
+  position: fixed;
+  z-index: 200;
+}
+
+.dropdown-menu button {
+  text-align: left;
+  background: transparent;
+  border: none;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--text-h);
+  cursor: pointer;
+}
+
+.dropdown-menu button:hover {
+  background: var(--accent-bg);
+}
+
+.dropdown-menu button.danger {
+  color: var(--danger);
+}
+
+.dropdown-menu button.danger:hover {
+  background: rgba(179, 38, 30, 0.1);
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 0;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  width: 640px;
+  max-width: calc(100vw - 40px);
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-header h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.modal-body {
+  padding: 18px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  row-gap: 10px;
+  column-gap: 12px;
+  font-size: 13px;
+}
+
+.detail-grid dt {
+  color: var(--text);
+  opacity: 0.7;
+  font-weight: 600;
+}
+
+.detail-grid dd {
+  color: var(--text-h);
+  word-break: break-all;
+}
+
+/* Object ACL editor */
+.acl-table th,
+.acl-table td {
+  white-space: normal;
+}
+
+.acl-table th:not(:first-child),
+.acl-table td:not(:first-child) {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.acl-checkbox input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.acl-grantee-remove-list {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.acl-grantee-remove-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
 }
